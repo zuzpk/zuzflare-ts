@@ -1,0 +1,80 @@
+$vars: (
+    
+    secondary: #af48c2,
+    
+    radius: 75px,
+    dialog-radius: 40px,
+    radius-md: var(--radius),
+    button-color: var(--text-btn),
+    form-padding: 10px,
+
+);
+
+$light: (
+
+    primary: #111,
+    primary-hover: #d73b3b,
+    background: var(--manatee-200),
+    surface: #fff,
+    surface-hover: #f6f6f6,
+    muted: #fff,
+    muted-hover: #f6f6f6,
+    text-btn: #fff,
+    text-primary: #111,
+    text-primary-hover: #222,
+    text-secondary: #444,
+    text-secondary-hover: #666,
+    border-primary: #ddd,
+    border-secondary: #eee,
+    cover-bg: rgba(229, 233, 239, 0.9),
+);
+
+$dark: (
+
+    primary: #fff,
+    primary-hover: #f3eded,
+    background: #131313,
+    surface: #1e1f20,
+    surface-hover: #292a2c,
+    muted: #272829,
+    muted-hover: #2e2f31,
+    text-btn: #111,
+    text-primary: #fff,
+    text-primary-hover: #f6f6f6,
+    text-secondary: #e3e3e3,
+    text-secondary-hover: #d8d8d8,
+    border-primary: #555,
+    border-secondary: #444,
+    cover-bg: rgba(19, 19, 19, 0.9),
+);
+
+body {
+
+    color-scheme: light dark;
+
+    @each $name, $value in $vars{
+        --#{$name}: #{$value};
+    }
+
+    
+    @each $name, $value in $light {
+        --#{$name}: #{$value};
+    }   
+    
+}
+
+[color-scheme="dark"] {
+    body{
+        @each $name, $value in $dark {
+            --#{$name}: #{$value};
+        }
+    }
+}
+
+html, body {
+  background: var(--background);
+  color: var(--text-primary);
+  font-size: var(--text-md);
+}
+
+a{ color: var(--text-primary); user-select: none; }

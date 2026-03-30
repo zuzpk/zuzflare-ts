@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   reactStrictMode: false,
   typescript: { ignoreBuildErrors: true },
-  allowedOrigins: ['*'],
+  allowedDevOrigins: ['*'],
   webpack: (config) => {
 
     config.resolve.fallback = {

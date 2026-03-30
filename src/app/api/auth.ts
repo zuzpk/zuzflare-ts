@@ -1,7 +1,8 @@
-import { SESS_NAME } from "@/config";
+import { AUTH_USER_HEADER, SESS_NAME } from "@/config";
 import { FLARE_APP_ID, FLARE_SERVER_URL, refreshAuthSession } from "@/flare";
-import { FlareAuthSession } from "@zuzjs/flare";
-import { cookies } from "next/headers";
+import { User } from "@/types";
+import { AuthConfigResponse, FlareAuthSession } from "@zuzjs/flare";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function getCookies() : Promise<{
@@ -22,9 +23,9 @@ export async function getCookies() : Promise<{
 
     if ( conf ){
       const co = JSON.parse(conf.value)
-      accessTokenName = co.accessTokenName || `__flare_access_${FLARE_APP_ID}`;
-      refreshTokenName = co.refreshTokenName || `__flare_refresh_${FLARE_APP_ID}`;
-      csrfTokenName = co.csrfTokenName || `__flare_csrf_${FLARE_APP_ID}`;
+      accessTokenName = co.accessTokenName
+      refreshTokenName = co.refreshTokenName
+      csrfTokenName = co.csrfTokenName
     }
 
     return {
@@ -66,7 +67,6 @@ export async function callFlareSystemApps(
 
 export async function requireUser() {
   const user = await getCurrentUser();
-  
   if (!user?.uid || !user?.accessToken) {
     return {
       kind: false as const,
@@ -77,4 +77,59 @@ export async function requireUser() {
     };
   }
   return { kind: true as const, user };
+}
+
+export const fetchCurrentUser = async (): Promise<User> => {
+  const headerStore = await headers()
+  const authUserHeader = headerStore.get(AUTH_USER_HEADER)
+
+  if (!authUserHeader) {
+    return {
+      loading: false,
+      uid: null,
+      name: undefined,
+      email: undefined,
+    }
+  }
+
+  try {
+    const authUser = JSON.parse(decodeURIComponent(authUserHeader)) as Partial<User>
+
+    return {
+      loading: false,
+      uid: authUser.uid ?? null,
+      name: authUser.name ?? undefined,
+      email: authUser.email ?? undefined,
+    }
+  }
+  catch {
+    return {
+      loading: false,
+      uid: null,
+      name: undefined,
+      email: undefined,
+    }
+  }
+}
+
+export const fetchAuthConfig = async (): Promise<Omit<AuthConfigResponse, `csrfToken`>> => {
+  const headerStore = await headers()
+  const authConfigHeader = headerStore.get(`x-flare-auth-config`)
+
+  if (!authConfigHeader) {
+    return {} as Omit<AuthConfigResponse, `csrfToken`>
+  }
+
+  try {
+
+    const authConfig = JSON.parse(decodeURIComponent(authConfigHeader)) as Partial<AuthConfigResponse>
+    if ( authConfig.csrfToken ) delete authConfig.csrfToken
+    return {
+      ...authConfig,
+    } as any
+
+  }
+  catch {
+    return {} as Omit<AuthConfigResponse, `csrfToken`>
+  }
 }

@@ -68,7 +68,7 @@ const Header = () => {
                 me.dispatch({ 
                     uid: user?.uid ?? null, 
                     email: user?.email ?? null,
-                    // name: user?.name ?? null,
+                    name: user?.name ?? null,
                 })
             }
         })

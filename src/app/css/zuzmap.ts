@@ -82,5 +82,8 @@ export const zuzMap: Record<string, string> = {
   "s:md": "zf007gro",
   "mv:35": "zm00b8w1",
   "s:xl!": "zf0023g6",
-  "b:900": "zf009xjn"
+  "b:900": "zf009xjn",
+  "w:100vw": "zw007vqk",
+  "h:90vh": "zh00dkxa",
+  "h:80vh": "zh00b0b1"
 };

@@ -72,18 +72,16 @@ export const zuzMap: Record<string, string> = {
   "mt:50": "zm00jzbt",
   "&hover(bg:$primary-hover)": "zb00a33v",
   "minH:100vh": "zm00auef",
-  "w:100": "zw00cap3",
+  "w:100vw": "zw007vqk",
+  "h:80vh": "zh00b0b1",
+  "s:md": "zf007gro",
   "w:320": "zw007g17",
   "gap:12": "zg00ebip",
   "b:700": "zf003n9t",
   "mb:10": "zm00im1j",
   "mt:35": "zm00jb8c",
   "&hover(tdu)": "zt00cqk2",
-  "s:md": "zf007gro",
   "mv:35": "zm00b8w1",
   "s:xl!": "zf0023g6",
-  "b:900": "zf009xjn",
-  "w:100vw": "zw007vqk",
-  "h:90vh": "zh00dkxa",
-  "h:80vh": "zh00b0b1"
+  "b:900": "zf009xjn"
 };

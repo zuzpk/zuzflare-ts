@@ -1,34 +1,65 @@
 "use client"
-import { APP_NAME } from '@/config';
+import { sendAccountRecovery } from '@/flare';
 import { dynamic } from '@zuzjs/core';
-import { Box, Button, css, Form, FORMVALIDATION, Group, Input, Text, TRANSITION_CURVES, TRANSITIONS, Variant } from '@zuzjs/ui';
+import { FlareResponseCodes } from '@zuzjs/flare';
+import { Button, css, Form, FormHandler, FORMVALIDATION, Group, Input, Text, useSnack, useToast, Variant } from '@zuzjs/ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Recover : React.FC = (_props) => {
 
     const router = useRouter();
-
+    const form = useRef<FormHandler>(null)
+    const toast = useToast()
+    const snack = useSnack()
+    
     const onSuccess = (resp: dynamic) => {
         router.push(`/u/recover/verify/${resp.token}/${encodeURIComponent(resp.email)}`)
     }
 
-    useEffect(() => {}, [])
+    const onSubmit = async (data : dynamic) => {
+
+        form.current?.setLoading(true);
+        snack.clearAll()
+
+        sendAccountRecovery(data.em)
+            .then(resp => {
+
+                if ( resp.kind === FlareResponseCodes.verificationDispatch ){
+
+                    router.push(`/u/recover/verify/${encodeURIComponent(data.em)}`)
+                }
+                
+            })
+            .catch(err => {
+
+                toast.error(err.message || `Recovery email dispatch failed`)
+
+            })
+            .finally(() => {
+                form.current?.setLoading(false)
+            })
+    }
+
+    useEffect(() => {
+        document.title = `Recover Account`
+    }, [])
 
     return <Group 
-        as={`h:100vh w:50vw bg:$surface abs abc flex aic jcc p:150 cols gap:15`}>
+        as={`abs abc flex aic jcc cols gap:15`}>
         <Form 
+            ref={form}
             name={`recover`}
-            action={`/@/u/recover`}
             onSuccess={onSuccess}
+            onSubmit={onSubmit}
             errors={{
                 em: `Valid email is required`,
             }}
             as={`flex cols w:320 gap:12`}>
             
-            <Text as={`s:20 b:700 mb:10`}>Recover {APP_NAME} Account</Text>
+            <Text as={`s:20 b:700 mb:10`}>Forgot Password?</Text>
 
             <Input variant={Variant.Medium} name={`em`} placeholder={`Email`} required with={FORMVALIDATION.Email} />
             

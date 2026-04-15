@@ -116,8 +116,10 @@ const Page : React.FC = (_props) => {
         )
         .then(resp => {
 
+            console.log(`Signup response:`, resp)
+
             if ( resp.kind == FlareResponseCodes.authRegistration ){
-                if ( resp.verificationRequired ){
+                if ( resp.verificationRequired || resp.verification_required ){
                     router.push(`/u/verify/${encodeURIComponent(data.em)}`)
                 }else if ( resp.refreshToken ){
                     setCookie({
@@ -134,10 +136,14 @@ const Page : React.FC = (_props) => {
                     router.push(`/u/verify/${encodeURIComponent(data.em)}?_=${Date.now()}`)
                 }
             }
+            else if ( resp.kind == FlareResponseCodes.authRegistrationVerificationRequired ){
+                router.push(`/u/verify/${encodeURIComponent(data.em)}`)
+            }
         })
         .catch(err => {
             form.current?.setLoading(false)
-            if ( err.code === FlareErrors.authWeakPassword ){
+            const errCode = err.code ?? err.error?.code ?? err.error ?? null;
+            if ( errCode === FlareErrors.authWeakPassword ){
                 if (err.violations) {
                     appDispatch({ violations: err.violations })
                 }
@@ -149,7 +155,7 @@ const Page : React.FC = (_props) => {
                     position: SnackPosition.BottomCenter
                 })
             }
-            else if ( err.code === FlareErrors.authEmailAlreadyInUse ){
+            else if ( errCode === FlareErrors.authEmailAlreadyInUse ){
                 snack.ok({
                     title: `Signup Failed`,
                     message: err.message || `Email is already in use. Please choose a different email.`,
@@ -164,7 +170,7 @@ const Page : React.FC = (_props) => {
                     }
                 })
             }
-            else if ( err.code === FlareErrors.authWrongPassword ){
+            else if ( errCode === FlareErrors.authWrongPassword ){
                 snack.ok({
                     title: `Signin Failed`,
                     message: err.message || `Invalid email or password. Please try again.`,
@@ -173,7 +179,7 @@ const Page : React.FC = (_props) => {
                     position: SnackPosition.BottomCenter
                 })
             }
-            else if ( err.code === FlareErrors.authInvalidEmail ){
+            else if ( errCode === FlareErrors.authInvalidEmail ){
                 snack.ok({
                     title: `Signup Failed`,
                     message: err.message || `That email is not registered with us.`,
@@ -187,7 +193,7 @@ const Page : React.FC = (_props) => {
                     }
                 })
             }
-            else if ( err.code === FlareErrors.authEmailNotVerified ){
+            else if ( errCode === FlareErrors.authEmailNotVerified ){
                 onEmailNotVerified(err, data.em)
             }
         })

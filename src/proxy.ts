@@ -1,9 +1,26 @@
-// import { cookies } from 'next/headers';
 import { AuthConfigResponse, extractCsrfFromRequest } from '@zuzjs/flare';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCookies, requireUser } from './app/api/auth';
 import { AUTH_USER_HEADER, REDIRECT_AFTER_OAUTH, SESS_NAME } from './config';
 import { FLARE_APP_ID } from './flare';
+import { withRoutes } from './routes';
+
+export const getBaseOrigin = (req: NextRequest) => {
+
+    const hostname = req.nextUrl.hostname;
+
+    // Check for localhost
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+
+    // Check for Private Network IP ranges (10.x, 172.16-31.x, 192.168.x)
+    const isPrivateIP = /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
+
+    // Final URL construction
+    return (isLocalhost || isPrivateIP) 
+        ? `http://${req.nextUrl.host}` 
+        : req.nextUrl.origin;
+}
+
 
 /**
  * Next.js Middleware – SSR CSRF Protection
@@ -35,23 +52,12 @@ import { FLARE_APP_ID } from './flare';
  *   - For server-side usage, middleware handles everything automatically
  */
 
-const routes = {
-    private: [
-        REDIRECT_AFTER_OAUTH
-    ],
-    public: [
-        `/u`
-    ],
-    shared: []
-}
-
 export async function proxy(req: NextRequest) {
     
     const pathname = req.nextUrl.pathname;
-    
-    const isPrivate = routes.private.some(path => pathname.startsWith(path));
-    const isPublic = routes.public.some(path => pathname.startsWith(path));
-    const isShared = routes.shared.some(path => pathname.startsWith(path));
+
+    const { isPrivate, isPublic, isShared } = withRoutes(pathname);
+    // console.log(`Proxying request for`, pathname, { isPrivate, isPublic, isShared })
 
     let csrf = extractCsrfFromRequest(req, FLARE_APP_ID);
     let csrfBootstrapSetCookie: string | null = null;
@@ -59,7 +65,11 @@ export async function proxy(req: NextRequest) {
 
     // Bootstrap SSR CSRF cookie in-band to avoid redirect loops.
     if (!csrf) {
-        const bootstrapUrl = new URL('/api/flare/csrf', req.url);
+        const bootstrapUrl = new URL(
+            '/api/flare/csrf', 
+            getBaseOrigin(req)
+        );
+        
         const bootstrap = await fetch(bootstrapUrl.toString(), {
             method: 'GET',
             cache: 'no-store',
@@ -71,17 +81,21 @@ export async function proxy(req: NextRequest) {
         if (bootstrap) {
             csrfBootstrapSetCookie = bootstrap.headers.get('set-cookie');
             authConfig = await bootstrap.json().catch(() => ({} as any));
-            console.log(`0--`, csrf, authConfig)
             if (!csrf && typeof authConfig?.csrfToken === 'string' && authConfig.csrfToken.length > 0) {
                 csrf = authConfig.csrfToken;
             }
         }
+
     }
 
-    const oauth = await requireUser()
+    // console.log(`Proxying request for`, pathname, { csrf, csrfBootstrapSetCookie, authConfig })
 
-        if ( 
-        (!oauth || !oauth.kind) && 
+    const oauth = await requireUser(req)
+
+    // console.log(`OAuth check for ${pathname}:`, { oauth, isPrivate, isPublic, isShared })
+
+    if ( 
+        (!oauth || oauth.hasSession === false) && 
         isPrivate
     ){
         return NextResponse.redirect(new URL(`/u/signin?_nxt=${pathname}`, req.url))
@@ -107,23 +121,27 @@ export async function proxy(req: NextRequest) {
             httpOnly: true,
             sameSite: 'strict',
             path: '/',
-            maxAge: 60 * 60,
+            maxAge: 60 * 60 * 24 * 365,
             secure: req.nextUrl.protocol === 'https:',
         })
     }
 
     if ( 
-        oauth.kind &&
+        oauth.hasSession === true &&
         (pathname == `/` || (isPublic && !isShared))
     ){
         response = NextResponse.redirect(new URL(`${REDIRECT_AFTER_OAUTH}?_=${Date.now()}`, req.url))
     }
-    
-    if (oauth.kind) {
+
+
+    if (oauth.hasSession === true) {
+        
         requestHeaders.set(AUTH_USER_HEADER, encodeURIComponent(JSON.stringify({
             loading: false,
-            uid: oauth.user?.uid ?? null,
-            email: oauth.user?.email ?? undefined,
+            uid: oauth.user?.session.uid ?? null,
+            id: oauth.user?.session.uid ?? null,
+            email: oauth.user?.session.email ?? undefined,
+            emailVerified: oauth.user?.session.emailVerified ?? undefined,
         })))
 
         // Preserve redirect responses; only replace response when current response is pass-through.
@@ -133,6 +151,7 @@ export async function proxy(req: NextRequest) {
                     headers: requestHeaders,
                 },
             })
+            if ( oauth.user?.refreshed ) response.headers.append('set-cookie', oauth.user.refreshed)
         }
     }
 
@@ -141,7 +160,7 @@ export async function proxy(req: NextRequest) {
     }
 
     if (csrf && !extractCsrfFromRequest(req, FLARE_APP_ID)) {
-        response.cookies.set((await getCookies()).csrfTokenName, csrf, {
+        response.cookies.set((await getCookies(req)).csrfTokenName, csrf, {
             httpOnly: true,
             sameSite: 'strict',
             path: '/',
@@ -150,20 +169,20 @@ export async function proxy(req: NextRequest) {
         })
     }
 
-    
-    // if (oauth.kind && oauth.you) {
-    //     response.cookies.set('__push', oauth.push_pk, {
-    //         path: '/',
-    //         maxAge: 60 * 60 * 24 * 365,
-    //         sameSite: 'lax',
-    //         httpOnly: false
-    //     });
-    // }
-    
     return response
-    
+
 }
 
+
 export const config = {
-    matcher: `/((?!api|zauth|static|ws|wss|@|.*\\..*|_next).*)`,
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        '/((?!api|zauth|wss|ws|_next/static|_next/image|favicon.ico|.*\\..*).*)',
+    ]
 };

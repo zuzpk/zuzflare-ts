@@ -1,15 +1,15 @@
 "use client"
 import Done from '@/app/done'
-import { confirmEmailLink, verifyEmailWithCode } from '@/flare'
+import { confirmEmailLink, recoverAccountWithCode } from '@/flare'
 import { _, dynamic } from "@zuzjs/core"
 import { FlareErrors } from '@zuzjs/flare'
-import { Box, Button, Cover, css, Form, Group, PinInput, Text, useSnack } from '@zuzjs/ui'
+import { Box, Button, Cover, css, Fieldset, Flex, Form, FORMVALIDATION, Group, Password, PinInput, SheetHandler, Text, useSnack, Variant } from '@zuzjs/ui'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Verify : React.FC = (_props) => {
+const Sent : React.FC = (_props) => {
 
     const router = useRouter()
     const [ token, em ] = useParams().verification ?? [ `token`, `em` ]
@@ -22,6 +22,7 @@ const Verify : React.FC = (_props) => {
         message: string;
     } | null>(null)
     const snack = useSnack()
+    const toast = useRef<SheetHandler | null>(null)
     const verifyingRef = useRef(false)
 
     const onSuccess = (resp : dynamic) => {
@@ -30,7 +31,7 @@ const Verify : React.FC = (_props) => {
             code: `verified`,
             type: `success`,
             title: `Good Job, ${resp.name ?? `That was easy :)`}`,
-            message: `Your account is verified now. Continue to Login`
+            message: `Your password is updated. Go Sign in`
         })
     }
 
@@ -55,7 +56,7 @@ const Verify : React.FC = (_props) => {
 
     useEffect(() => {
         
-        document.title = `Verify Email`
+        document.title = `Verify Recover Code`
         
         if ( token && _(token).isEmail() ){
             setVerifying(false)
@@ -67,12 +68,10 @@ const Verify : React.FC = (_props) => {
         // else onAuthConfigLoaded(() => autoVerify())
 
     }, [])
+    
 
-    // useEffect(() => {}, [done])
-    // console.log(`-- render`, verifying, result)
-
-    return <Group
-        as={`h:100vh w:50vw bg:$surface abs abc flex aic jcc p:150 cols gap:15`}>
+    return <Group 
+        as={`abs abc flex aic jcc cols gap:15`}>
         <Cover when={verifying} message={`verfying...`} />
         { result ? <Done 
             type={result.type}
@@ -82,7 +81,11 @@ const Verify : React.FC = (_props) => {
             name={`verify`}
             onSubmit={async (data:dynamic) => {
                 setVerifying(true)
-                verifyEmailWithCode(decodeURIComponent(token), data.code)
+                recoverAccountWithCode(
+                    decodeURIComponent(token), 
+                    data.code,
+                    data.repassw
+                )
                     .then(onSuccess)
                     .catch(err => {
                         setVerifying(false)
@@ -107,14 +110,28 @@ const Verify : React.FC = (_props) => {
             }}
             errors={{
                 code: `Verification Code is required`,
+                passw: `New Password is required`,
+                repassw: `Passwords do not match`
             }}
-            as={`flex cols w:320 gap:12`}>
+            as={`flex cols w:400`}>
             
-            <Text as={`s:18 mb:10`}>We have sent you a verification code{em ? <> to <b>{decodeURIComponent(em)}</b></> : null}</Text>
+            <Text as={`s:lg tac`}>We have sent you a verification code</Text>
+            {em || _(token).isEmail() ? 
+                <Text as={`s:md mb:30 tac dim-50`}>to <b>{decodeURIComponent(em || token)}</b></Text>
+            : null}
 
-            <PinInput name={`code`} as={`s:xl! b:900`} length={6} required />
+            <Fieldset legend={`New Password`} as={`flex cols gap:12 p:25 r:40!`}>
+                <Password variant={Variant.Medium} name={`passw`} placeholder={`New Password`} required />
+                <Password variant={Variant.Medium} name={`repassw`} placeholder={`Repeat Password`} required with={`${FORMVALIDATION.MatchField}@passw` } />
+            </Fieldset>
+
+            <Fieldset legend={`Verification Code`} as={`flex cols gap:12 p:25 mt:25 r:40!`}>
+                <PinInput name={`code`} as={`s:xl! b:900`} length={6} required />
+            </Fieldset>
             
-            <Button type={`submit`} as={`mt:25 bold`}>Verify</Button>
+            <Flex as={`p:10,25`}>
+                <Button type={`submit`} as={`mt:25 bold w:full`}>Update Password</Button>
+            </Flex>
 
             { resend && <Box as={`mt:25 s:16`}>Code not received? <Link href={`/u/recover?resend=1`} className={css(`tdn bold &hover(tdu)`)}>Re-send code</Link></Box> }
 
@@ -122,4 +139,4 @@ const Verify : React.FC = (_props) => {
     </Group>
 }
 
-export default Verify;
+export default Sent

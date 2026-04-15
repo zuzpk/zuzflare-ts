@@ -22,6 +22,10 @@ const packages = [
         name: "@zuzjs/flare"
     },
     {
+        id: "flare-admin",
+        name: "@zuzjs/flare-admin"
+    },
+    {
         id: "hooks",
         name: "@zuzjs/hooks"
     },
@@ -46,6 +50,26 @@ for(const pack of packages) {
     packageJson.dependencies[pack.name] = `^${packJson.version}`
 }
 
+
+const [ _major, _minor, _patch ] = packageJson.version.split(`.`)
+
+let major = +_major
+let minor = +_minor
+let patch = +_patch
+
+if ( patch < 99 ) {
+    patch += 1
+} else {
+    patch = 0
+    if ( minor < 99 ) {
+        minor += 1
+    } else {
+        minor = 0
+        major += 1
+    }
+}   
+
+packageJson.version = `${major}.${minor}.${patch}`
 
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 

@@ -3,10 +3,10 @@ import { APP_URL } from "./config";
 import { User } from "./types";
 
 export const FLARE_API_KEY = `FA_8agoDtcSv23LbOgrdmQOARjNbeTbrEPZ9iDCo9`;
-export const FLARE_SERVER_URL = `http://192.168.100.4:25050` // "https://flare.zuzcdn.net"
+export const FLARE_SERVER_URL = "https://flare.zuzcdn.net"
 export const FLARE_APP_ID = "default-2";
 
-export const FLARE_INTERNAL_SERVER_URL = `http://192.168.100.4:25050`;
+export const FLARE_INTERNAL_SERVER_URL = "https://flare.zuzcdn.net";
 export const FLARE_INTERNAL_USER_TOKEN = process.env.FLARE_INTERNAL_USER_TOKEN?.trim() || null;
 
 const APP_ORIGIN =

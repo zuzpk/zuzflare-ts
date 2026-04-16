@@ -17,7 +17,7 @@
     "@zuzjs/hooks": "^0.1.20",
     "@zuzjs/logger": "^0.1.9",
     "@zuzjs/store": "^0.1.8",
-    "@zuzjs/ui": "^1.0.72",
+    "@zuzjs/ui": "^1.0.73",
     "next": "16.2.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"

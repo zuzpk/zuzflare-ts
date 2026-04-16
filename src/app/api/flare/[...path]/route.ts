@@ -15,7 +15,7 @@
  * Static route /api/flare/csrf takes priority over this catch-all ✓
  */
 
-import { FLARE_API_KEY, FLARE_APP_ID, FLARE_SERVER_URL } from "@/flare";
+import { FLARE_API_KEY, FLARE_APP_ID, FLARE_INTERNAL_SERVER_URL, FLARE_SERVER_URL } from "@/flare";
 import { extractCsrfFromRequest } from "@zuzjs/flare";
 import { NextRequest } from "next/server";
 import { getCurrentUser } from "../../auth";
@@ -48,7 +48,7 @@ async function handle(req: NextRequest, { params }: Context): Promise<Response> 
     const { path } = await params;
 
     // Build the upstream Flare URL, forwarding all query params.
-    const flareUrl = new URL(`/${path.join("/")}`, FLARE_SERVER_URL);
+    const flareUrl = new URL(`/${path.join("/")}`, FLARE_INTERNAL_SERVER_URL ?? FLARE_SERVER_URL);
     req.nextUrl.searchParams.forEach((value, key) => {
         flareUrl.searchParams.set(key, value);
     });
@@ -96,7 +96,7 @@ async function handle(req: NextRequest, { params }: Context): Promise<Response> 
     if ( !flareHeaders.authorization && path[0] === "auth" ) {
         const user = await getCurrentUser()
         if ( user ){
-            flareHeaders["authorization"] = `Bearer ${user.accessToken}`
+            flareHeaders["authorization"] = `Bearer ${user.session.accessToken}`
         }
     }
     // console.log(`[Flare Proxy] ${req.method}`, path, csrfToken, flareHeaders)

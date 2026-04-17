@@ -83,5 +83,12 @@ export const zuzMap: Record<string, string> = {
   "&hover(tdu)": "zt00cqk2",
   "mv:35": "zm00b8w1",
   "s:xl!": "zf0023g6",
-  "b:900": "zf009xjn"
+  "b:900": "zf009xjn",
+  "w:400": "zw00jrxm",
+  "tac": "zt00kcz0",
+  "mb:30": "zm001a6x",
+  "p:25": "zp00874k",
+  "r:40!": "zb007630",
+  "p:10,25": "zp006jel",
+  "w:full": "zw000esk"
 };

@@ -41,3 +41,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# zuz.scss
+/src/app/css/zuz.scss
+/src/app/css/zuzmap.ts
+
+/.husky
+husky-pre.js
+husky-post.js
+
+.vscode/sftp.json
+
+package-lock.json
+package.json.bak

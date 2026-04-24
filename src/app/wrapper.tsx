@@ -1,7 +1,7 @@
 "use client"
 import "@/app/css/app.scss";
 import { FB_PIXEL_ID, GA_MEASUREMENT_ID, LocalDB } from "@/config";
-import { refreshAuthSession } from "@/flare";
+import { hydrateAuthState } from "@/flare";
 import { AppStore, Store } from "@/store";
 import { DB, User } from "@/types";
 import { AuthConfigResponse } from "@zuzjs/flare";
@@ -21,17 +21,44 @@ const Wrapper = ({ children, currentUser, authConfig } : Readonly<{
     authConfig: Omit<AuthConfigResponse, `csrfToken`>
 }>) => {
 
+    const { provider, ...restCurrentUser } = currentUser
+    const normalizedUserState = {
+        ...restCurrentUser,
+        uid: restCurrentUser.uid ?? restCurrentUser.id ?? null,
+        id: restCurrentUser.id ?? restCurrentUser.uid ?? null,
+    }
+
     const { Provider } = createStore(Store.App, { ...AppStore.App, authConfig })
-    const { Provider: UserProvider } = createStore(Store.User, currentUser)
+    const { Provider: UserProvider } = createStore(Store.User, normalizedUserState)
     
     const { trackPageView: sendGTPageView } = useGoogleTagManager(GA_MEASUREMENT_ID!)
     const { trackPageView: sendFBPageView } = useFacebookPixel(FB_PIXEL_ID!)
 
     useEffect(() => {
-        refreshAuthSession().catch(() => {})
         sendGTPageView()
         sendFBPageView()
     }, []);
+
+    useEffect(() => {
+
+        const uid = normalizedUserState.uid ?? normalizedUserState.id ?? null
+
+        if (!uid) {
+            hydrateAuthState(null, {
+                source: "wrapper.initial",
+                markBootstrapAttempted: true,
+                syncSocket: true,
+            }).catch(() => undefined)
+            return
+        }
+
+        hydrateAuthState(currentUser, {
+            source: "wrapper.initial",
+            markBootstrapAttempted: true,
+            syncSocket: true,
+        }).catch(() => undefined)
+    }, [normalizedUserState.uid, normalizedUserState.id, normalizedUserState.email, normalizedUserState.emailVerified, normalizedUserState.name, normalizedUserState.picture, normalizedUserState.color])
+
 
     return <DatabaseProvider options={LocalDB.App}><Provider>
         <UserProvider>

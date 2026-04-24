@@ -1,6 +1,7 @@
 import { AuthConfigResponse, extractCsrfFromRequest } from '@zuzjs/flare';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCookies, requireUser } from './app/api/auth';
+import { flareAdmin } from './app/api/flareadmin';
 import { AUTH_USER_HEADER, REDIRECT_AFTER_OAUTH, SESS_NAME } from './config';
 import { FLARE_APP_ID } from './flare';
 import { withRoutes } from './routes';
@@ -136,12 +137,18 @@ export async function proxy(req: NextRequest) {
 
     if (oauth.hasSession === true) {
         
+        const socketTicket = await flareAdmin.auth().getTicket(oauth.user?.session.uid!, {
+            tag: `wss`
+        }).catch(() => null);
+        
         requestHeaders.set(AUTH_USER_HEADER, encodeURIComponent(JSON.stringify({
             loading: false,
             uid: oauth.user?.session.uid ?? null,
             id: oauth.user?.session.uid ?? null,
             email: oauth.user?.session.email ?? undefined,
             emailVerified: oauth.user?.session.emailVerified ?? undefined,
+            provider: oauth.user?.session.provider ?? undefined,
+            ticket: socketTicket?.ticket ?? `ws:none`,
         })))
 
         // Preserve redirect responses; only replace response when current response is pass-through.

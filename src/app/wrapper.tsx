@@ -8,6 +8,7 @@ import { AuthConfigResponse } from "@zuzjs/flare";
 import { DatabaseProvider, useDB, useFacebookPixel, useGoogleTagManager } from "@zuzjs/hooks";
 import createStore from "@zuzjs/store";
 import { Box, setZuzMap, SPINNER, ThemeProvider, TRANSITION_CURVES, TRANSITIONS, Variant } from "@zuzjs/ui";
+import DevTools from "@zuzjs/ui/devtools";
 import { ReactNode, useEffect } from "react";
 import { zuzMap } from "./css/zuzmap";
 import Header from "./header";
@@ -139,6 +140,7 @@ const Main = ({ children, currentUser, authConfig } : { children: ReactNode; cur
             <Header />
             {children}
         </Box>
+        <DevTools />
     </ThemeProvider>
 
 }

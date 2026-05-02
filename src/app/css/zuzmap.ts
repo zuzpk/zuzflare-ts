@@ -90,5 +90,10 @@ export const zuzMap: Record<string, string> = {
   "p:25": "zp00874k",
   "r:40!": "zb007630",
   "p:10,25": "zp006jel",
-  "w:full": "zw000esk"
+  "w:full": "zw000esk",
+  "fixed": "zp00lp1v",
+  "top:50": "zt00lyni",
+  "left:50": "zl007ubq",
+  "zIndex:9999": "zz00cka9",
+  "mt:200": "zm005e6e"
 };

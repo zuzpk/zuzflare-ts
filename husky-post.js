@@ -11,8 +11,8 @@ if ( fs.existsSync(backupPath) ) {
 
     originalPackageJson.version = updatedPackageJson.version
 
-    fs.writeFileSync(packageJsonPath, JSON.stringify(originalPackageJson))
+    fs.writeFileSync(packageJsonPath, JSON.stringify(originalPackageJson, null, 2))
 
     fs.unlinkSync(backupPath)
-    
+
 }

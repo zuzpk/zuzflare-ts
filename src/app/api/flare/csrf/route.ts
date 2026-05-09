@@ -1,4 +1,4 @@
-import { FLARE_API_KEY, FLARE_APP_ID, FLARE_INTERNAL_SERVER_URL, FLARE_SERVER_URL } from "@/flare";
+import { FLARE_API_KEY, FLARE_APP_ID, FLARE_INTERNAL_SERVER_URL, FLARE_SERVER_URL } from "@/flare-config";
 import { createCsrfProxy } from "@zuzjs/flare";
 import { NextResponse } from "next/server";
 

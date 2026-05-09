@@ -15,7 +15,7 @@
  * Static route /api/flare/csrf takes priority over this catch-all ✓
  */
 
-import { FLARE_API_KEY, FLARE_APP_ID, FLARE_INTERNAL_SERVER_URL, FLARE_SERVER_URL } from "@/flare";
+import { FLARE_API_KEY, FLARE_APP_ID, FLARE_INTERNAL_SERVER_URL, FLARE_SERVER_URL } from "@/flare-config";
 import { extractCsrfFromRequest } from "@zuzjs/flare";
 import { NextRequest } from "next/server";
 import { getCurrentUser } from "../../auth";

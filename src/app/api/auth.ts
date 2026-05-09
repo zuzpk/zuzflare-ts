@@ -1,12 +1,12 @@
 import { AUTH_USER_HEADER, SESS_NAME } from "@/config";
+import { refreshAuthSession } from "@/flare";
 import {
   FLARE_API_KEY,
   FLARE_APP_ID,
   FLARE_INTERNAL_SERVER_URL,
   FLARE_INTERNAL_USER_TOKEN,
   FLARE_SERVER_URL,
-  refreshAuthSession,
-} from "@/flare";
+} from "@/flare-config";
 import { AuthUser, User } from "@/types";
 import { dynamic } from "@zuzjs/core";
 import { AuthConfigResponse, FlareAuthSession } from "@zuzjs/flare";
@@ -230,8 +230,8 @@ export async function callFlareSystemApps(
   if (!url.searchParams.has("appId")) {
     url.searchParams.set("appId", FLARE_APP_ID);
   }
-  if (options?.useAdminKey && process.env.FLARE_INTERNAL_ADMIN_KEY && !url.searchParams.has("adminKey")) {
-    url.searchParams.set("adminKey", process.env.FLARE_INTERNAL_ADMIN_KEY);
+  if (options?.useAdminKey && process.env.FLARE_ADMIN_KEY && !url.searchParams.has("adminKey")) {
+    url.searchParams.set("adminKey", process.env.FLARE_ADMIN_KEY);
   } else if (!url.searchParams.has("apiKey")) {
     url.searchParams.set("apiKey", FLARE_API_KEY);
   }

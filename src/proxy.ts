@@ -1,10 +1,10 @@
+import { getCookies, requireUser } from '@/app/api/auth';
+import { flareAdmin } from '@/app/api/flareadmin';
+import { AUTH_USER_HEADER, REDIRECT_AFTER_OAUTH, SESS_NAME } from '@/config';
+import { FLARE_APP_ID } from '@/flare-config';
+import { withRoutes } from '@/routes';
 import { AuthConfigResponse, extractCsrfFromRequest } from '@zuzjs/flare';
 import { NextRequest, NextResponse } from 'next/server';
-import { getCookies, requireUser } from './app/api/auth';
-import { flareAdmin } from './app/api/flareadmin';
-import { AUTH_USER_HEADER, REDIRECT_AFTER_OAUTH, SESS_NAME } from './config';
-import { FLARE_APP_ID } from './flare';
-import { withRoutes } from './routes';
 
 export const getBaseOrigin = (req: NextRequest) => {
 

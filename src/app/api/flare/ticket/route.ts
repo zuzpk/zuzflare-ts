@@ -7,9 +7,9 @@
  * Response: { ticket: string }
  */
 
+import { requireUser } from "@/app/api/auth";
+import { flareAdmin } from "@/app/api/flareadmin";
 import { NextRequest, NextResponse } from "next/server";
-import { requireUser } from "../../auth";
-import { flareAdmin } from "../../flareadmin";
 
 export const dynamic = "force-dynamic";
 

@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# frontend-flare
+
+Boilerplate for building Next.js applications with [`@zuzjs/ui`](https://github.com/zuzpk/zuzjs-ui) and [`@zuzjs/flare`](https://github.com/zuzpk/zuzflare-ts) — the Zuz realtime auth and data layer.
+
+This app lives inside the `@zuz-js` monorepo and consumes workspace packages directly.
+
+## Stack
+
+- **Next.js** (custom webpack build via `zuz.js`)
+- **@zuzjs/ui** — component library
+- **@zuzjs/flare** — realtime client (WebSocket/Flare protocol)
+- **@zuzjs/flare-admin** — admin utilities for Flare
+- **@zuzjs/store** — global state management
+- **@zuzjs/hooks** — shared React hooks
+- **@zuzjs/core** — shared utilities and types
+- **SCSS** — theming via `src/app/css/`
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies from the monorepo root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then start the dev server for this app:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This runs three processes concurrently:
+- `zuzjs watch` — watches and rebuilds `@zuzjs/ui` component styles
+- `node zuz.js mode=dev` — Zuz asset pipeline in dev mode
+- `next dev -p 3000 --webpack` — Next.js dev server on port 3000
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env` and fill in your values:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description |
+|---|---|
+| `FLARE_INTERNAL_USER_TOKEN` | Server-side token for internal Flare API calls |
+| `NEXT_PUBLIC_APP_ORIGIN` | Public origin URL (falls back to `VERCEL_URL` or config) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The Flare connection is configured in `src/flare-config.ts`. Update `FLARE_APP_ID`, `FLARE_API_KEY`, and `FLARE_SERVER_URL` to point at your Flare instance.
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/
+    (authenticated)/   # Routes requiring auth
+    (guest)/           # Public routes
+    api/               # Next.js route handlers (auth, flare proxy)
+    css/               # Global SCSS theme files
+  config.ts            # App-level config (URLs, constants)
+  flare-config.ts      # Flare connection config
+  flare.ts             # Flare client initialization
+  store.ts             # Global store setup
+  routes.ts            # Typed route definitions
+  types.ts             # Shared TypeScript types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Building
+
+```bash
+pnpm build
+```
+
+Runs the Zuz production asset pipeline then `next build`.
+
+## Linting
+
+```bash
+pnpm lint
+```

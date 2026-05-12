@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     ]
   },
   typedRoutes: false,
-  distDir: ".next.dev",
+  distDir: ".next.build",
   cleanDistDir: true,
   poweredByHeader: false,
   images: {

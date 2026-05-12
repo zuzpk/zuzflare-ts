@@ -1,6 +1,6 @@
 {
   "name": "frontend-flare",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "private": true,
   "scripts": {
     "css-fix": "sudo npm i -g style-loader css-loader sass-loader",
@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@zuzjs/core": "^0.3.19",
-    "@zuzjs/flare": "^0.2.19",
+    "@zuzjs/flare": "^0.2.20",
     "@zuzjs/flare-admin": "^0.1.6",
     "@zuzjs/hooks": "^0.1.27",
     "@zuzjs/logger": "^0.1.9",
     "@zuzjs/store": "^0.1.8",
-    "@zuzjs/ui": "^1.0.85",
+    "@zuzjs/ui": "^1.0.86",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"

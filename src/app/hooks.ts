@@ -16,6 +16,14 @@ type CurrentUserState = {
 }
 
 export const useSession = (options?: SyncUserStoreOptions) => {
+// : {
+//     id: string | null | undefined;
+//     uid: string | null | undefined;
+//     email: string | undefined;
+//     name?: string | null;
+//     loading: boolean;
+// } 
+
 
     const userState = useStore<Pick<User, "id" | "uid" | "email" | "name" | "loading">>(
         Store.User, 
@@ -24,8 +32,7 @@ export const useSession = (options?: SyncUserStoreOptions) => {
             uid: s.uid, 
             email: s.email, 
             name: s.name, 
-            loading: 
-            s.loading 
+            loading: s.loading 
         }),
         (prev, next) => (
             prev.id == next.id &&
@@ -71,8 +78,9 @@ export const useSession = (options?: SyncUserStoreOptions) => {
         }
     }, [authState.isLoading, (authState.user as any)?.id, (authState.user as any)?.uid, authState.user?.email, userState.id, userState.uid, userState.email, userState.name, userState.dispatch, options?.includeName, options?.clearOnSignOut])
 
+    const { accessToken: _a, refreshToken: _r, ...safeUser } = (authState.user ?? {}) as any
     return {
-        ...authState.user,
+        ...safeUser,
         loading: authState.isLoading,
     }
 

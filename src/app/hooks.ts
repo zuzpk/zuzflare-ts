@@ -71,7 +71,10 @@ export const useSession = (options?: SyncUserStoreOptions) => {
         }
     }, [authState.isLoading, (authState.user as any)?.id, (authState.user as any)?.uid, authState.user?.email, userState.id, userState.uid, userState.email, userState.name, userState.dispatch, options?.includeName, options?.clearOnSignOut])
 
-    return authState
+    return {
+        ...authState.user,
+        loading: authState.isLoading,
+    }
 
 }
 

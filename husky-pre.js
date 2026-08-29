@@ -45,7 +45,7 @@ const packages = [
 ]
 
 for(const pack of packages) {
-    const packPath = path.join(__dirname, "..", "..", "packages", pack.id, "package.json")
+    const packPath = path.join("/Users/kamranwajdani/Desktop/Zuz/@zuz-js/packages/", pack.id, "package.json")
     const packJson = JSON.parse(fs.readFileSync(packPath, "utf8"))
     packageJson.dependencies[pack.name] = `^${packJson.version}`
 }

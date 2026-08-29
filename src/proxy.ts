@@ -154,7 +154,11 @@ export async function proxy(req: NextRequest) {
                     headers: requestHeaders,
                 },
             })
-            if ( oauth.user?.refreshed ) response.headers.append('set-cookie', oauth.user.refreshed)
+            if ( oauth.user?.refreshed?.length ) {
+                for (const refreshedCookie of oauth.user.refreshed) {
+                    response.headers.append('set-cookie', refreshedCookie)
+                }
+            }
         }
     }
 

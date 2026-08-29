@@ -1,6 +1,6 @@
 {
   "name": "frontend-flare",
-  "version": "1.1.14",
+  "version": "1.1.16",
   "private": true,
   "scripts": {
     "css-fix": "sudo npm i -g style-loader css-loader sass-loader",
@@ -12,27 +12,27 @@
   },
   "dependencies": {
     "@zuzjs/core": "^0.3.26",
-    "@zuzjs/flare": "^0.2.34",
+    "@zuzjs/flare": "^0.2.35",
     "@zuzjs/flare-admin": "^0.1.18",
     "@zuzjs/hooks": "^0.1.34",
     "@zuzjs/logger": "^0.1.9",
     "@zuzjs/store": "^0.1.8",
-    "@zuzjs/ui": "^1.1.15",
-    "next": "16.2.10",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "@zuzjs/ui": "^1.1.18",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "babel-plugin-react-compiler": "1.0.0",
-    "concurrently": "^9.2.1",
-    "eslint": "^10.1.0",
-    "eslint-config-next": "16.2.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.9.1",
+    "eslint-config-next": "16.3.3",
     "husky": "^9.1.7",
-    "sass": "^1.101.0",
+    "sass": "^1.103.1",
     "style-loader": "^4.0.0",
-    "typescript": "^6.0.2"
+    "typescript": "^7.0.2"
   }
 }

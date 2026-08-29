@@ -13,7 +13,7 @@ import { cookies, headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 type CookieSourceRequest = Pick<NextRequest, "headers"> | Request;
-type UserSession = { session: FlareAuthSession, refreshed: string | null } | null
+type UserSession = { session: FlareAuthSession, refreshed: string[] } | null
 
 function parseCookieHeader(header: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -158,7 +158,15 @@ export async function getCurrentUser(request?: CookieSourceRequest): Promise<Use
     if (refreshed?.uid && refreshed?.accessToken){ 
       return { 
         session: refreshed, 
-        refreshed: `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=None;Secure` 
+        refreshed: [
+          `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=None;Secure`,
+          // Flare rotates the refresh token on every refresh — re-issue the
+          // rotated RT cookie or the browser's RT cookie goes stale and the
+          // next refresh revokes the session (token-reuse detection).
+          ...(refreshed.refreshToken
+            ? [`${cooko.refreshTokenName}=${refreshed.refreshToken};Max-Age=2592000;Path=/;HttpOnly;SameSite=None;Secure`]
+            : []),
+        ]
       }
     }
   }
@@ -181,7 +189,15 @@ export async function getCurrentUser(request?: CookieSourceRequest): Promise<Use
       if (refreshed?.uid && refreshed?.accessToken){ 
         return { 
           session: refreshed, 
-          refreshed: `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=None;Secure` 
+          refreshed: [
+            `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=None;Secure`,
+            // Flare rotates the refresh token on every refresh — re-issue the
+            // rotated RT cookie or the browser's RT cookie goes stale and the
+            // next refresh revokes the session (token-reuse detection).
+            ...(refreshed.refreshToken
+              ? [`${cooko.refreshTokenName}=${refreshed.refreshToken};Max-Age=2592000;Path=/;HttpOnly;SameSite=None;Secure`]
+              : []),
+          ]
         }
       }
     }
@@ -192,7 +208,7 @@ export async function getCurrentUser(request?: CookieSourceRequest): Promise<Use
 
     if (_uid) {
       return {
-        refreshed: null, //`${cooko.accessTokenName}=${cooko.accessToken};Max-Age=86400;Path: /;HttpOnly;SameSite=None;Secure`,
+        refreshed: [], //`${cooko.accessTokenName}=${cooko.accessToken};Max-Age=86400;Path: /;HttpOnly;SameSite=None;Secure`,
         session: {
           uid: _uid,
           accessToken: cooko.accessToken!,

@@ -10,7 +10,16 @@ export const routes = {
     shared: []
 }
 
-const checkPath = (routesArray: string[], pathname: string) => routesArray.some(path => pathname == path || pathname.startsWith(path + "/"));
+// Check if pathname equals route OR starts with route + "/"
+const checkPath = (routesArray: string[], pathname: string) => {
+    return routesArray.some(path => {
+        // Exact match
+        if (pathname === path) return true;
+        // Starts with path + "/" (e.g., /a/ matches /a/app-id)
+        if (pathname.startsWith(path) && pathname.length > path.length) return true;
+        return false;
+    });
+};
 
 export const withRoutes = (pathname: string) => ({
     isPrivate: checkPath(routes.private, pathname),

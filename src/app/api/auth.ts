@@ -184,18 +184,22 @@ export async function getCurrentUser(request?: CookieSourceRequest): Promise<Use
     const nowSec = Math.floor(Date.now() / 1000)
     const isExpired = Number.isFinite(expSec) && expSec <= nowSec
 
+    // Detect if running on HTTPS or HTTP
+    const isSecure = process.env.NODE_ENV === 'production' || process.env.VERCEL_URL;
+
     if ( isExpired ) {
       const refreshed = await refreshAuthSessionServer(cooko.refreshToken)
       if (refreshed?.uid && refreshed?.accessToken){ 
         return { 
           session: refreshed, 
           refreshed: [
-            `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=None;Secure`,
+            // Remove Secure flag for localhost/HTTP development
+            `${cooko.accessTokenName}=${refreshed.accessToken};Max-Age=86400;Path=/;HttpOnly;SameSite=Lax${isSecure ? ';Secure' : ''}`,
             // Flare rotates the refresh token on every refresh — re-issue the
             // rotated RT cookie or the browser's RT cookie goes stale and the
             // next refresh revokes the session (token-reuse detection).
             ...(refreshed.refreshToken
-              ? [`${cooko.refreshTokenName}=${refreshed.refreshToken};Max-Age=2592000;Path=/;HttpOnly;SameSite=None;Secure`]
+              ? [`${cooko.refreshTokenName}=${refreshed.refreshToken};Max-Age=2592000;Path=/;HttpOnly;SameSite=Lax${isSecure ? ';Secure' : ''}`]
               : []),
           ]
         }

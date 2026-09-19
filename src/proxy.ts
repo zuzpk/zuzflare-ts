@@ -91,11 +91,21 @@ export async function proxy(req: NextRequest) {
 
     const oauth = await requireUser(req)
 
+    // If session is invalid on a private route, redirect to login
+    // Clear any stale auth cookies first
     if ( 
         (!oauth || oauth.hasSession === false) && 
         isPrivate
     ){
-        return NextResponse.redirect(new URL(`/u/signin?_nxt=${pathname}`, req.url))
+        // Redirect to login and clear stale cookies
+        const response = NextResponse.redirect(new URL(`/u/signin?_nxt=${pathname}`, req.url))
+        // Clear stale auth cookies
+        const cookieSettings = await getCookies(req);
+        response.headers.append('set-cookie', `${cookieSettings.accessTokenName}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`)
+        response.headers.append('set-cookie', `${cookieSettings.refreshTokenName}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`)
+        response.headers.append('set-cookie', `${cookieSettings.csrfTokenName}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`)
+        response.headers.append('set-cookie', `${SESS_NAME}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`)
+        return response
     }
 
     const requestHeaders = new Headers(req.headers)
